@@ -7,7 +7,7 @@ It uses Pubmed official API, so there is no scraping involved and its completely
 To start using it, follow the steps below.
 
 ```python
-S = SearchAndCapture('fccoelho@gmail.com', 'zika virus')
+S = SearchAndCapture('your@email.com', 'zika virus')
 S.update()
 ```
 
