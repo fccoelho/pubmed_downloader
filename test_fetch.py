@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.S = SearchAndCapture('your@email.com', 'zika virus')
+        self.S = SearchAndCapture('your@email.com', '((zika) NOT zika[Author]) AND ZIKV')
 
     def test_fetch_one_article(self):
         resp = self.S._fetch('26923117')
