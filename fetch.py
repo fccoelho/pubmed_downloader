@@ -25,6 +25,7 @@ query_strings = ['((zika) NOT zika[Author])',
                  '(zika NOT zika[Author] ) dengue',
                  '(zika NOT zika[Author]) culex ',
                  '(zika NOT zika[Author]) mosquito',
+                 '(zika NOT zika[Author])virus transmission'
                  ]
 
 
@@ -33,6 +34,7 @@ class SearchAndCapture:
         self.search_term =search_term
         Entrez.email = email
         self.collection = connection.pubmed.articles
+        self.citation_colection = connection.pubmed.citations
 
     def _fetch(self, pmid):
         handle = Entrez.efetch(db="pubmed", id=pmid, retmode='xml')
@@ -44,17 +46,34 @@ class SearchAndCapture:
         oldids = [i['MedlineCitation']['PMID'] for i in oldids]
         return oldids
 
+    def _get_citations(self, pmid):
+        handle = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed_citedin")
+        record = Entrez.read(handle)
+        handle.close()
+        if record[0]['LinkSetDb']:
+            citers = record[0]['LinkSetDb'][0]['Link']
+        else:
+            citers = []
+        return [i['Id'] for i in citers]
+
+    def update_citations(self):
+        print("Updating citations...")
+        ids = self._get_old_ids()
+        for i in ids:
+            cits = self._get_citations(i)
+            self.citation_colection.update_one({"PMID": i}, {"$set": {"citedby": cits}}, upsert=True)
+
     def update_multiple_searches(self, queries=None):
         global query_strings
         if queries is not None:
             query_strings = queries
         for qs in query_strings:
-            print("Fetching results for {}".format(qs))
             self.search_term = qs
             self.update()
 
     def update(self):
         old_ids = self._get_old_ids()
+        print("Fetching results for {}".format(self.search_term))
         handle = Entrez.esearch(db="pubmed", retmax=1000, term=self.search_term)
         response = Entrez.read(handle=handle)
         print("Found {} items".format(len(response['IdList'])))
@@ -72,3 +91,4 @@ class SearchAndCapture:
 if __name__ == "__main__":
     S = SearchAndCapture('fccoelho@gmail.com', '((zika microcephaly) NOT zika[author])')
     S.update_multiple_searches()
+    S.update_citations()
