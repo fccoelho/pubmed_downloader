@@ -30,11 +30,14 @@ query_strings = ['((zika) NOT zika[Author])',
 
 
 class SearchAndCapture:
-    def __init__(self, email, search_term):
+    def __init__(self, email, search_term, collection='articles'):
         self.search_term =search_term
         Entrez.email = email
-        self.collection = connection.pubmed.articles
-        self.citation_colection = connection.pubmed.citations
+        self.collection = connection.pubmed[collection]
+        if collection == 'articles':
+            self.citation_colection = connection.pubmed.citations
+        else:
+            self.citation_colection = connection.pubmed["citations_{}".format(collection)]
 
     def _fetch(self, pmid):
         handle = Entrez.efetch(db="pubmed", id=pmid, retmode='xml')

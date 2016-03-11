@@ -8,13 +8,13 @@ from bson.objectid import ObjectId
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.S = SearchAndCapture('your@email.com', '((zika) NOT zika[Author]) AND ZIKV')
+        self.S = SearchAndCapture('your@email.com', '((zika fever) NOT zika[Author])')
 
     def test_fetch_one_article(self):
         resp = self.S._fetch('26923117')
         self.assertIsInstance(resp, list)
         self.assertEqual(len(resp), 1)
-
+    @unittest.skip
     def test_get_old_ids(self):
         res = self.S._get_old_ids()
         self.assertIsInstance(res[0], str)
