@@ -13,7 +13,7 @@ import time
 
 connection = pymongo.MongoClient()
 
-query_strings = ['((zika) NOT zika[Author])',
+zika_query_strings = ['((zika) NOT zika[Author])',
                  '((zika virus NOT zika[Author]))',
                  '((zika microcephaly) NOT zika[author])',
                  '((zika fever NOT zika[Author]))',
@@ -27,7 +27,14 @@ query_strings = ['((zika) NOT zika[Author])',
                  '(zika NOT zika[Author]) mosquito',
                  '(zika NOT zika[Author])virus transmission'
                  ]
-
+MERS_query_strings = [
+    'MERS',
+    'mers cov',
+    'mers coronavirus',
+    'mers korea',
+    'mers vaccine',
+    'mers camel'
+]
 
 class SearchAndCapture:
     def __init__(self, email, search_term, collection='articles'):
@@ -67,7 +74,7 @@ class SearchAndCapture:
             self.citation_colection.update_one({"PMID": i}, {"$set": {"citedby": cits}}, upsert=True)
 
     def update_multiple_searches(self, queries=None):
-        global query_strings
+        global zika_query_strings
         if queries is not None:
             query_strings = queries
         for qs in query_strings:
@@ -95,3 +102,6 @@ if __name__ == "__main__":
     S = SearchAndCapture('fccoelho@gmail.com', '((zika microcephaly) NOT zika[author])')
     S.update_multiple_searches()
     S.update_citations()
+    T = SearchAndCapture('fccoelho@gmail.com', 'MERS', 'mers')
+    T.update_multiple_searches(MERS_query_strings)
+    T.update_citations()
