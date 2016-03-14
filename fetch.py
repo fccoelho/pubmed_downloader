@@ -7,6 +7,7 @@ license: GPL V3 or Later
 
 __docformat__ = 'restructuredtext en'
 from Bio import Entrez
+from urllib.error import HTTPError
 import pymongo
 import time
 
@@ -57,7 +58,10 @@ class SearchAndCapture:
         return oldids
 
     def _get_citations(self, pmid):
-        handle = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed_citedin")
+        try:
+            handle = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed_citedin")
+        except HTTPError:
+            return []
         record = Entrez.read(handle)
         handle.close()
         if record[0]['LinkSetDb']:
@@ -71,6 +75,8 @@ class SearchAndCapture:
         ids = self._get_old_ids()
         for i in ids:
             cits = self._get_citations(i)
+            if cits == []:
+                continue
             self.citation_colection.update_one({"PMID": i}, {"$set": {"citedby": cits}}, upsert=True)
 
     def update_multiple_searches(self, queries=None):
