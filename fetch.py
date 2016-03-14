@@ -60,7 +60,8 @@ class SearchAndCapture:
     def _get_citations(self, pmid):
         try:
             handle = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed_citedin")
-        except HTTPError:
+        except HTTPError as e:
+            print(e)
             return []
         record = Entrez.read(handle)
         handle.close()
