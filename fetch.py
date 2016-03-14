@@ -77,6 +77,8 @@ class SearchAndCapture:
         global zika_query_strings
         if queries is not None:
             query_strings = queries
+        else:
+            query_strings = zika_query_strings
         for qs in query_strings:
             self.search_term = qs
             self.update()
@@ -84,7 +86,7 @@ class SearchAndCapture:
     def update(self):
         old_ids = self._get_old_ids()
         print("Fetching results for {}".format(self.search_term))
-        handle = Entrez.esearch(db="pubmed", retmax=1000, term=self.search_term)
+        handle = Entrez.esearch(db="pubmed", retmax=100000, term=self.search_term)
         response = Entrez.read(handle=handle)
         print("Found {} items".format(len(response['IdList'])))
         new_ids = {}
@@ -92,6 +94,8 @@ class SearchAndCapture:
             if pmid in old_ids:
                 continue
             art = self._fetch(pmid)[0]
+            if "MedlineCitation" not in art:
+                continue
             result = self.collection.update_one({"MedlineCitation.PMID": art["MedlineCitation"]["PMID"]}, {"$setOnInsert": art}, upsert=True)
             new_ids[pmid] = result.upserted_id
         return new_ids

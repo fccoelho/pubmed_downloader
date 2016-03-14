@@ -4,11 +4,13 @@ import pymongo
 
 connection = pymongo.MongoClient()
 
-def dump_to_csv():
-    cursor_cit = connection.pubmed.citations.find()
-    cursor_art = connection.pubmed.articles.find()
-    f = open("edge_list.csv", 'w')
-    g = open("node_list",'w')
+def dump_to_csv(collection=""):
+    artcol = "articles" if not collection else collection
+    citcol = "citations" if not collection else "citations_"+collection
+    cursor_cit = connection.pubmed['citations'].find()
+    cursor_art = connection.pubmed[artcol].find()
+    f = open("{}edge_list.csv".format(collection), 'w')
+    g = open("{}node_list.csv".format(collection),'w')
     g.write("PMID|title|journal|year|month|day\n")
     try:
         for cit in cursor_cit:
@@ -30,3 +32,4 @@ def dump_to_csv():
 
 if __name__ == "__main__":
     dump_to_csv()
+    dump_to_csv('mers')
