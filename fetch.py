@@ -62,7 +62,7 @@ class SearchAndCapture:
             handle = Entrez.elink(dbfrom="pubmed", id=pmid, linkname="pubmed_pubmed_citedin")
         except HTTPError as e:
             print(e)
-            return []
+            return None
         record = Entrez.read(handle)
         handle.close()
         if record[0]['LinkSetDb']:
@@ -76,7 +76,7 @@ class SearchAndCapture:
         ids = self._get_old_ids()
         for i in ids:
             cits = self._get_citations(i)
-            if cits == []:
+            if cits is None:
                 continue
             self.citation_colection.update_one({"PMID": i}, {"$set": {"citedby": cits}}, upsert=True)
 
