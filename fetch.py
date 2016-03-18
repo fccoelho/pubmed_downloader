@@ -74,7 +74,7 @@ class SearchAndCapture:
 
     def update_citations_concurrently(self):
         ids = self._get_old_ids()
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=100) as executor:
             future_cits = {executor.submit(self._get_citations, pmid): pmid for pmid in ids}
             for future in as_completed(future_cits):
                 pmid = future_cits[future]
