@@ -10,6 +10,7 @@ from Bio import Entrez
 from urllib.error import HTTPError
 import pymongo
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 connection = pymongo.MongoClient()
@@ -71,6 +72,22 @@ class SearchAndCapture:
             citers = []
         return [i['Id'] for i in citers]
 
+    def update_citations_concurrently(self):
+        ids = self._get_old_ids()
+        with ThreadPoolExecutor() as executor:
+            future_cits = {executor.submit(self._get_citations, pmid): pmid for pmid in ids}
+            for future in as_completed(future_cits):
+                pmid = future_cits[future]
+                print("getting citations for {}".format(pmid))
+                try:
+                    cits = future.result()
+                    if cits is None:
+                        continue
+                    else:
+                        self.citation_colection.update_one({"PMID": pmid}, {"$set": {"citedby": cits}}, upsert=True)
+                except Exception as e:
+                    print('%r generated an exception: %s' % (pmid, e))
+
     def update_citations(self):
         print("Updating citations...")
         ids = self._get_old_ids()
@@ -109,10 +126,12 @@ class SearchAndCapture:
 
 
 
+
+
 if __name__ == "__main__":
     S = SearchAndCapture('fccoelho@gmail.com', '((zika microcephaly) NOT zika[author])')
     S.update_multiple_searches()
-    S.update_citations()
+    S.update_citations_concurrently()
     T = SearchAndCapture('fccoelho@gmail.com', 'MERS', 'mers')
     T.update_multiple_searches(MERS_query_strings)
-    T.update_citations()
+    T.update_citations_concurrently()
