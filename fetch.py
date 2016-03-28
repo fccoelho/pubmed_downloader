@@ -137,7 +137,6 @@ class SearchAndCapture:
 
 
 if __name__ == "__main__":
-    S.update_citations_concurrently()
     S = SearchAndCapture('fccoelho@gmail.com', '((zika microcephaly) NOT zika[author])')
     S.update_multiple_searches()
     S.update_citations_concurrently()
