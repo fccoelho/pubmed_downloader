@@ -38,11 +38,19 @@ MERS_query_strings = [
     'mers camel'
 ]
 
+Mayaro_query_strings = ['mayaro',
+                        'mayaro virus',
+                        ]
+Oropouche_query_strings = ['oropouche',
+                           'oropouche virus'
+                           ]
+
 class SearchAndCapture:
     def __init__(self, email, search_term, collection='articles'):
         self.search_term =search_term
         Entrez.email = email
         self.collection = connection.pubmed[collection]
+        self.collection.create_index([('$**', pymongo.TEXT)], default_language='english')
         if collection == 'articles':
             self.citation_colection = connection.pubmed.citations
         else:
@@ -129,9 +137,11 @@ class SearchAndCapture:
 
 
 if __name__ == "__main__":
+    S.update_citations_concurrently()
     S = SearchAndCapture('fccoelho@gmail.com', '((zika microcephaly) NOT zika[author])')
     S.update_multiple_searches()
     S.update_citations_concurrently()
-    T = SearchAndCapture('fccoelho@gmail.com', 'MERS', 'mers')
-    T.update_multiple_searches(MERS_query_strings)
-    T.update_citations_concurrently()
+    for s in [MERS_query_strings, Mayaro_query_strings, Oropouche_query_strings]:
+        S = SearchAndCapture('fccoelho@gmail.com', s[0], s[0].lower())
+        S.update_multiple_searches()
+        S.update_citations_concurrently()
