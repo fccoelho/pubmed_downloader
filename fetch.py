@@ -106,11 +106,11 @@ class SearchAndCapture:
             self.citation_colection.update_one({"PMID": i}, {"$set": {"citedby": cits}}, upsert=True)
 
     def update_multiple_searches(self, queries=None):
-        global zika_query_strings
+
         if queries is not None:
             query_strings = queries
         else:
-            query_strings = zika_query_strings
+            query_strings = [self.search_term]
         for qs in query_strings:
             self.search_term = qs
             self.update()
@@ -141,6 +141,6 @@ if __name__ == "__main__":
     S.update_multiple_searches()
     S.update_citations_concurrently()
     for s in [MERS_query_strings, Mayaro_query_strings, Oropouche_query_strings]:
-        S = SearchAndCapture('fccoelho@gmail.com', s[0], s[0].lower())
-        S.update_multiple_searches()
-        S.update_citations_concurrently()
+        T = SearchAndCapture('fccoelho@gmail.com', s[0], s[0].lower())
+        T.update_multiple_searches(s)
+        T.update_citations_concurrently()
