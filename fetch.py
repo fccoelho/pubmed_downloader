@@ -138,7 +138,7 @@ class SearchAndCapture:
 
 if __name__ == "__main__":
     S = SearchAndCapture('fccoelho@gmail.com', '((zika microcephaly) NOT zika[author])')
-    S.update_multiple_searches()
+    S.update_multiple_searches(zika_query_strings)
     S.update_citations_concurrently()
     for s in [MERS_query_strings, Mayaro_query_strings, Oropouche_query_strings]:
         T = SearchAndCapture('fccoelho@gmail.com', s[0], s[0].lower())
