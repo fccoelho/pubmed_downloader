@@ -7,8 +7,9 @@ It uses Pubmed official API, so there is no scraping involved and its completely
 To start using it, follow the steps below.
 
 ```python
-S = SearchAndCapture('your@email.com', 'zika virus')
-S.update()
+S = SearchAndCapture('your@email.com', '((zika microcephaly) NOT zika[author])')
+S.update_multiple_searches(zika_query_strings)
+S.update_citations_concurrently()
 ```
 
 That's all! You may want to run update() once a day to include recently published articles.
