@@ -72,7 +72,7 @@ def LSI_topics(corpus, dictionary):
     return lsi
 
 def LDA_topics(corpus, dictionary, num_topics):
-    lda_model = models.ldamodel.LdaModel(corpus, id2word=dicionary, num_topics=num_topics, passes=10)
+    lda_model = models.ldamodel.LdaModel(corpus, id2word=dictionary, num_topics=num_topics, passes=10)
     return lda_model
 
 
