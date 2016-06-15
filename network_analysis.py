@@ -76,10 +76,8 @@ def LDA_topics(corpus, dictionary, num_topics):
     return lda_model
 
 
-
-
 if __name__ == "__main__":
-    # dump_to_csv()
+    dump_to_csv()
     # dump_to_csv('mers')
     col = 'zika'
     c, d = create_corpus(col)

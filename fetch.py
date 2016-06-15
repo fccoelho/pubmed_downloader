@@ -128,7 +128,9 @@ class SearchAndCapture:
             art = self._fetch(pmid)[0]
             if "MedlineCitation" not in art:
                 continue
+            # TODO: Fix the date before insertion
             result = self.collection.update_one({"MedlineCitation.PMID": art["MedlineCitation"]["PMID"]}, {"$setOnInsert": art}, upsert=True)
+
             new_ids[pmid] = result.upserted_id
         return new_ids
 
