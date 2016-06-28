@@ -78,13 +78,17 @@ def LDA_topics(corpus, dictionary, num_topics):
 
 if __name__ == "__main__":
     dump_to_csv()
-    # dump_to_csv('mers')
-    col = 'zika'
-    c, d = create_corpus(col)
-    lsi = LSI_topics(c, d)
-    lsi.save('lda_model_{}'.format(col))
-    lda = LDA_topics(c, d, 30)
-    lda.save('lda_model_{}'.format(col))
-    print(lsi.show_topics(10))
+    dump_to_csv('mers')
+    for col in ['zika', 'mers']:
+        print("Calculating {} lsi model".format(col))
+        c, d = create_corpus(col)
+        lsi = LSI_topics(c, d)
+        print("Saving {} lsi model".format(col))
+        lsi.save('lda_model_{}'.format(col))
+        print("Calculating {} lda model".format(col))
+        lda = LDA_topics(c, d, 30)
+        print("Saving {} lda model".format(col))
+        lda.save('lda_model_{}'.format(col))
+    # print(lsi.show_topics(10))
 
 
