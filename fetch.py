@@ -7,7 +7,7 @@ license: GPL V3 or Later
 
 __docformat__ = 'restructuredtext en'
 from Bio import Entrez
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 import pymongo
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -125,7 +125,11 @@ class SearchAndCapture:
         for pmid in response['IdList']:
             if pmid in old_ids:
                 continue
-            art = self._fetch(pmid)[0]
+            try:
+                art = self._fetch(pmid)[0]
+            except URLError:
+                print("Downloading of {} failed. Slipping".format(pmid))
+                continue
             if "MedlineCitation" not in art:
                 continue
             # TODO: Fix the date before insertion
