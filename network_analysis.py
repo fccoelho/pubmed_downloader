@@ -36,8 +36,8 @@ def dump_to_csv(collection=""):
         f.close()
         g.close()
 
-def article_generator(artcol, tokenize=True):
-    cursor_art = connection.pubmed[artcol].find()
+def article_generator(artcol, filter={}, tokenize=True):
+    cursor_art = connection.pubmed[artcol].find(filter)
     for art in cursor_art:
         try:
             abs = art["MedlineCitation"]["Article"]['Abstract']['AbstractText']
@@ -48,21 +48,37 @@ def article_generator(artcol, tokenize=True):
         else:
             yield abs
 
-def create_article_dictionary(collection='zika'):
+def create_article_dictionary(collection='zika', filter=None):
+    if filter is None:
+        filter = {}
     artcol = "articles" if collection == 'zika' else collection
-    articles = article_generator(artcol)
+    articles = article_generator(artcol, filter=filter)
     dictionary = corpora.Dictionary(articles)
     dictionary.save('Dicionario_{}.dict'.format(collection))
     return dictionary
 
-def create_corpus(collection='zika'):
+def create_corpus(collection='zika', filter=None):
+    if filter is None:
+        filter = {}
     artcol = "articles" if collection == 'zika' else collection
-    dictionary = create_article_dictionary(collection)
+    dictionary = create_article_dictionary(collection, filter=filter)
+    stopw_ids = map(dictionary.token2id.get, sw)
+    dictionary.filter_tokens(stopw_ids)
+    dictionary.compactify()
+    dictionary.filter_extremes(no_below=5, no_above=0.5, keep_n=None)
+    dictionary.compactify()
     # print(dictionary)
-    articles = article_generator(artcol)
+
+    articles = article_generator(artcol, filter=filter)
     corpus = [dictionary.doc2bow(text) for text in articles]
     corpora.MmCorpus.serialize('corpus_{}'.format(collection), corpus)
     return corpus, dictionary
+
+def get_top_topics_by_year(lda, collection, year):
+    year = str(year)
+    corpus, dic = create_corpus(collection=collection, filter={"MedlineCitation.DateCreated.Year": year})
+    corpus_lda = lda[corpus]
+    return [sorted(doc, key=lambda item: -item[1]) for doc in corpus_lda]
 
 def LSI_topics(corpus, dictionary):
     tfidf = models.TfidfModel(corpus)
