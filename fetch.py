@@ -128,7 +128,7 @@ class SearchAndCapture:
             try:
                 art = self._fetch(pmid)[0]
             except URLError:
-                print("Downloading of {} failed. Slipping".format(pmid))
+                print("Downloading of {} failed. Skipping".format(pmid))
                 continue
             if "MedlineCitation" not in art:
                 continue
