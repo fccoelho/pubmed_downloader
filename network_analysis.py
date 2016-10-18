@@ -6,7 +6,7 @@ from nltk.tokenize import WordPunctTokenizer
 from nltk.corpus import stopwords
 from string import punctuation
 
-connection = pymongo.MongoClient()
+connection = pymongo.MongoClient('172.16.4.51')
 tokenizer = WordPunctTokenizer()
 sw = stopwords.words('english') + list(punctuation)
 
