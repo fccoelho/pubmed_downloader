@@ -74,9 +74,10 @@ def create_corpus(collection='zika', filter=None):
     corpora.MmCorpus.serialize('corpus_{}'.format(collection), corpus)
     return corpus, dictionary
 
-def get_top_topics_by_year(lda, collection, year):
+def get_top_topics_by_year(lda, full_dict, collection, year):
     year = str(year)
-    corpus, dic = create_corpus(collection=collection, filter={"MedlineCitation.DateCreated.Year": year})
+    articles = article_generator(collection, filter={"MedlineCitation.DateCreated.Year": year})
+    corpus = [full_dict.doc2bow(text) for text in articles]
     corpus_lda = lda[corpus]
     return [sorted(doc, key=lambda item: -item[1]) for doc in corpus_lda]
 
