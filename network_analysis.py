@@ -2,6 +2,7 @@
 import networkx as nx
 import pymongo
 from gensim import corpora, models, similarities
+from gensim.models.ldamulticore import LdaMulticore
 from nltk.tokenize import WordPunctTokenizer
 from nltk.corpus import stopwords
 from string import punctuation
@@ -79,7 +80,7 @@ def get_top_topics_by_year(lda, full_dict, collection, year):
     articles = article_generator(collection, filter={"MedlineCitation.DateCreated.Year": year})
     corpus = [full_dict.doc2bow(text) for text in articles]
     corpus_lda = lda[corpus]
-    return [sorted(doc, key=lambda item: -item[1]) for doc in corpus_lda]
+    return sorted([doc for doc in corpus_lda], key=lambda item: -item[1])
 
 def LSI_topics(corpus, dictionary):
     tfidf = models.TfidfModel(corpus)
@@ -89,7 +90,7 @@ def LSI_topics(corpus, dictionary):
     return lsi
 
 def LDA_topics(corpus, dictionary, num_topics):
-    lda_model = models.ldamodel.LdaModel(corpus, id2word=dictionary, num_topics=num_topics, passes=10)
+    lda_model = LdaMulticore(corpus, id2word=dictionary, num_topics=num_topics, passes=10)
     return lda_model
 
 
@@ -106,6 +107,7 @@ if __name__ == "__main__":
         lda = LDA_topics(c, d, 30)
         print("Saving {} lda model".format(col))
         lda.save('lda_model_{}'.format(col))
+        doc_topics = get_top_topics_by_year(lda, d, 'zika', 2016)
     # print(lsi.show_topics(10))
 
 
