@@ -13,7 +13,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
-connection = pymongo.MongoClient()
+connection = pymongo.MongoClient('172.16.4.51')
 
 zika_query_strings = ['((zika) NOT zika[Author])',
                  '((zika virus NOT zika[Author]))',
@@ -58,8 +58,8 @@ class SearchAndCapture:
 
     def _fetch(self, pmid):
         handle = Entrez.efetch(db="pubmed", id=pmid, retmode='xml')
-        records = list(Entrez.parse(handle))
-        return records
+        records = Entrez.read(handle)
+        return records.get('PubmedArticle',[])
 
     def _get_old_ids(self):
         oldids = self.collection.find({}, {"MedlineCitation.PMID": 1})
@@ -130,10 +130,13 @@ class SearchAndCapture:
             except URLError:
                 print("Downloading of {} failed. Skipping".format(pmid))
                 continue
+            except IndexError as e:
+                print("Empty record for {}".format(pmid))
+                continue
             if "MedlineCitation" not in art:
                 continue
             # TODO: Fix the date before insertion
-            result = self.collection.update_one({"MedlineCitation.PMID": art["MedlineCitation"]["PMID"]}, {"$setOnInsert": art}, upsert=True)
+            result = self.collection.update_one({"MedlineCitation.PMID": str(art["MedlineCitation"]["PMID"])}, {"$setOnInsert": art}, upsert=True)
 
             new_ids[pmid] = result.upserted_id
         return new_ids
