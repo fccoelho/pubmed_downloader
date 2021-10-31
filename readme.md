@@ -19,9 +19,23 @@ That's all! You may want to run it once a day to include recently published arti
 
 You need to have a local mongodb server running.
 
+## Downloading to postgresql
+If you don't want to work with Mongodb,
+
+You can create your corpus of articles instead on PostgreSQL. 
+
+For that you can customize your query strings on the `fetch2psql.py` script and run it on the command line.
+
+```bash
+$ ./fetch2pgsql.py
+```
+
+This script also enables full text indexing on the corpus.
+
 ## Export network data
-You can export csv files with data structued for network analysis:
+You can export csv files with data structured for network analysis:
 
 ```
 $ python3 network_analysis.py
 ```
+This script only works for the mongodb databases. I should not be difficult to adapt it to work with corpora stored in Postgres.
