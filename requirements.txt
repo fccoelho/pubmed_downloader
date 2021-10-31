@@ -2,3 +2,6 @@ biopython
 pymongo
 scholarly
 networkx
+sqlalchemy
+tqdm
+psycopg2-binary
