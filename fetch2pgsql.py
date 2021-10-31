@@ -78,7 +78,7 @@ class SearchAndCapture:
             res = connection.execute(f"select pmid from {self.articles_table};")
             oldids = res.fetchall()
         
-        return oldids
+        return [i[0] for i in oldids]
 
     def _get_citations(self, pmid):
         try:
@@ -145,13 +145,15 @@ class SearchAndCapture:
 
     def update(self):
         old_ids = self._get_old_ids()
+        # print (old_ids)
+        # return
         print("Fetching results for {}".format(self.search_term))
         handle = Entrez.esearch(db="pubmed", retmax=100000, term=self.search_term)
         response = Entrez.read(handle=handle)
         print("Found {} items".format(len(response['IdList'])))
         new_ids = {}
         for pmid in tqdm(response['IdList']):
-            if pmid in old_ids:
+            if int(pmid) in old_ids:
                 continue
             try:
                 art = self._fetch(pmid)[0]
