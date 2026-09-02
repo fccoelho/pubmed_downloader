@@ -1,0 +1,25 @@
+[project]
+name = "pubmed-downloader"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Flavio Codeço Coelho", email = "fccoelho@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "biopython>=1.88",
+    "networkx>=3.6.1",
+    "psycopg2-binary>=2.9.12",
+    "pymongo>=4.17.0",
+    "scholarly>=1.7.11",
+    "sqlalchemy>=2.0.52",
+    "tqdm>=4.70.0",
+]
+
+[project.scripts]
+pubmed-downloader = "pubmed_downloader:main"
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
